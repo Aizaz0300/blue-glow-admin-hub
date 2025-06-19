@@ -1,8 +1,102 @@
-
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, Calendar, Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Users, UserCheck, Calendar, Activity, Star, Clock } from "lucide-react";
+import { ServiceProvider } from "@/types/models";
+import ServiceProviderProfile from "@/components/ServiceProviderProfile";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const { toast } = useToast();
+  const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
+  // Mock data - replace with Appwrite queries
+  const pendingProviders: ServiceProvider[] = [
+    {
+      id: "1",
+      name: "Dr. Sarah Johnson",
+      email: "sarah.johnson@email.com",
+      gender: "Female",
+      imageUrl: "",
+      services: ["Home Nursing", "Elderly Care"],
+      rating: 4.8,
+      reviewCount: 23,
+      phone: "+1 234 567 8901",
+      experience: 5,
+      about: "Experienced registered nurse specializing in home-based patient care with 5+ years of experience in critical care and rehabilitation.",
+      address: "123 Main St, City, State 12345",
+      cnic: ["/placeholder.svg", "/placeholder.svg"],
+      gallery: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
+      certifications: ["/placeholder.svg", "/placeholder.svg"],
+      socialLinks: [],
+      reviewList: [
+        {
+          id: "1",
+          userName: "John Smith",
+          userImage: "",
+          rating: 5,
+          comment: "Excellent care for my elderly mother. Very professional and caring.",
+          date: "2024-01-10"
+        }
+      ],
+      licenseInfo: {
+        licenseNumber: "RN123456",
+        issuingAuthority: "State Board of Nursing",
+        issueDate: "2020-01-15",
+        expiryDate: "2025-01-15",
+        licenseImageUrl: "/placeholder.svg"
+      },
+      availability: {
+        monday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        tuesday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        wednesday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        thursday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        friday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        saturday: { isAvailable: false, timeWindows: [] },
+        sunday: { isAvailable: false, timeWindows: [] }
+      },
+      status: "pending"
+    },
+    {
+      id: "2", 
+      name: "Michael Chen",
+      email: "michael.chen@email.com",
+      gender: "Male",
+      imageUrl: "",
+      services: ["Physical Therapy", "Rehabilitation"],
+      rating: 4.9,
+      reviewCount: 41,
+      phone: "+1 234 567 8902",
+      experience: 8,
+      about: "Licensed physical therapist with extensive experience in home-based rehabilitation and injury recovery programs.",
+      address: "456 Oak Ave, City, State 12345",
+      cnic: ["/placeholder.svg", "/placeholder.svg"],
+      gallery: ["/placeholder.svg", "/placeholder.svg"],
+      certifications: ["/placeholder.svg"],
+      socialLinks: [],
+      reviewList: [],
+      licenseInfo: {
+        licenseNumber: "PT789012",
+        issuingAuthority: "Physical Therapy Board",
+        issueDate: "2018-03-20",
+        expiryDate: "2025-03-20",
+        licenseImageUrl: "/placeholder.svg"
+      },
+      availability: {
+        monday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        tuesday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        wednesday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        thursday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        friday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        saturday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "14:00" }] },
+        sunday: { isAvailable: false, timeWindows: [] }
+      },
+      status: "pending"
+    }
+  ];
+
   const stats = [
     {
       title: "Total Providers",
@@ -27,12 +121,34 @@ const Dashboard = () => {
     },
     {
       title: "Pending Approvals",
-      value: "7",
+      value: pendingProviders.length.toString(),
       change: "-2%",
       icon: Activity,
       color: "from-cyan-500 to-cyan-600"
     },
   ];
+
+  const handleViewProfile = (provider: ServiceProvider) => {
+    setSelectedProvider(provider);
+    setProfileDialogOpen(true);
+  };
+
+  const handleApprove = (providerId: string) => {
+    toast({
+      title: "Provider Approved",
+      description: "The service provider has been approved successfully",
+    });
+    setProfileDialogOpen(false);
+  };
+
+  const handleReject = (providerId: string) => {
+    toast({
+      title: "Provider Rejected",
+      description: "The service provider application has been rejected",
+      variant: "destructive",
+    });
+    setProfileDialogOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -67,27 +183,39 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="gradient-card border-0 hover-lift">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Recent Activity</CardTitle>
-            <CardDescription>Latest actions in your healthcare system</CardDescription>
+            <CardTitle className="text-lg font-semibold text-gray-900">Pending Provider Requests</CardTitle>
+            <CardDescription>Service providers awaiting approval</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { action: "New provider registration", time: "2 minutes ago", type: "provider" },
-              { action: "Appointment scheduled", time: "15 minutes ago", type: "appointment" },
-              { action: "Patient profile updated", time: "1 hour ago", type: "patient" },
-              { action: "Service provider approved", time: "2 hours ago", type: "approval" },
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-blue-50/50 hover:bg-blue-50 transition-colors">
-                <div className={`w-2 h-2 rounded-full ${
-                  activity.type === 'provider' ? 'bg-blue-500' :
-                  activity.type === 'appointment' ? 'bg-green-500' :
-                  activity.type === 'patient' ? 'bg-purple-500' :
-                  'bg-orange-500'
-                }`}></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
+            {pendingProviders.map((provider, index) => (
+              <div key={provider.id} className="flex items-center gap-3 p-3 rounded-lg bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
+                  {provider.name.split(' ').map(n => n[0]).join('')}
                 </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-gray-900">{provider.name}</p>
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">Pending</Badge>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-xs text-gray-500">{provider.services.join(", ")}</p>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                      <span className="text-xs text-gray-500">{provider.rating}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-gray-500" />
+                      <span className="text-xs text-gray-500">{provider.experience}y exp</span>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => handleViewProfile(provider)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                >
+                  Review
+                </Button>
               </div>
             ))}
           </CardContent>
@@ -118,6 +246,14 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ServiceProviderProfile
+        provider={selectedProvider}
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </div>
   );
 };
