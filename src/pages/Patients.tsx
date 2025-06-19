@@ -4,51 +4,65 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { UserModel } from "@/types/models";
 
 const Patients = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock data - replace with Appwrite queries
-  const patients = [
+  // Mock data using UserModel structure
+  const patients: UserModel[] = [
     {
-      id: 1,
-      name: "John Smith",
+      id: "user_001",
+      profileImage: "",
+      firstName: "John",
+      lastName: "Smith",
       email: "john.smith@email.com",
       phone: "+1 234 567 8901",
-      age: 65,
-      address: "123 Main St, City, State",
-      lastVisit: "2024-01-15",
-      status: "active",
-      conditions: ["Diabetes", "Hypertension"]
+      address: "123 Main St, City, State 12345",
+      dateOfBirth: "1959-03-15",
+      gender: "Male"
     },
     {
-      id: 2,
-      name: "Mary Johnson",
+      id: "user_002",
+      profileImage: "",
+      firstName: "Mary",
+      lastName: "Johnson",
       email: "mary.johnson@email.com",
       phone: "+1 234 567 8902",
-      age: 72,
-      address: "456 Oak Ave, City, State",
-      lastVisit: "2024-01-12",
-      status: "inactive",
-      conditions: ["Arthritis"]
+      address: "456 Oak Ave, City, State 12345",
+      dateOfBirth: "1952-08-22",
+      gender: "Female"
     },
     {
-      id: 3,
-      name: "Robert Wilson",
+      id: "user_003",
+      profileImage: "",
+      firstName: "Robert",
+      lastName: "Wilson",
       email: "robert.wilson@email.com",
       phone: "+1 234 567 8903",
-      age: 58,
-      address: "789 Pine Rd, City, State",
-      lastVisit: "2024-01-18",
-      status: "active",
-      conditions: ["Post-Surgery Care"]
+      address: "789 Pine Rd, City, State 12345",
+      dateOfBirth: "1966-11-30",
+      gender: "Male"
     },
   ];
 
   const filteredPatients = patients.filter(patient =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const calculateAge = (dateOfBirth: string) => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -64,9 +78,6 @@ const Patients = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-64"
           />
-          <Button className="gradient-primary text-white">
-            Add Patient
-          </Button>
         </div>
       </div>
 
@@ -77,21 +88,21 @@ const Patients = () => {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                    {patient.name.split(' ').map(n => n[0]).join('')}
+                    {patient.profileImage ? (
+                      <img src={patient.profileImage} alt={`${patient.firstName} ${patient.lastName}`} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      `${patient.firstName[0]}${patient.lastName[0]}`
+                    )}
                   </div>
                   <div>
-                    <CardTitle className="text-xl text-gray-900">{patient.name}</CardTitle>
-                    <CardDescription className="text-gray-600">Age: {patient.age} years</CardDescription>
+                    <CardTitle className="text-xl text-gray-900">{patient.firstName} {patient.lastName}</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Age: {calculateAge(patient.dateOfBirth)} years • {patient.gender}
+                    </CardDescription>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge 
-                        className={`${
-                          patient.status === 'active' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800'
-                        } border-0`}
-                      >
-                        {patient.status.toUpperCase()}
+                      <Badge className="bg-blue-100 text-blue-800 border-0">
+                        Patient ID: {patient.id.substring(0, 8)}
                       </Badge>
-                      <span className="text-sm text-gray-500">Last visit: {patient.lastVisit}</span>
                     </div>
                   </div>
                 </div>
@@ -114,14 +125,9 @@ const Patients = () => {
                   <p className="text-sm text-gray-600">{patient.address}</p>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Medical Conditions</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {patient.conditions.map((condition, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
-                        {condition}
-                      </Badge>
-                    ))}
-                  </div>
+                  <h4 className="font-medium text-gray-900">Personal Details</h4>
+                  <p className="text-sm text-gray-600">Date of Birth: {new Date(patient.dateOfBirth).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-600">Gender: {patient.gender}</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900">Quick Actions</h4>

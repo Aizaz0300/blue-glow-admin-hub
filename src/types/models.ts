@@ -1,3 +1,4 @@
+
 export interface UserModel {
   profileImage: string;
   id: string;
@@ -90,7 +91,7 @@ export interface Appointment {
   endTime: string; // "HH:mm" format
   duration: number; // in minutes
   notes: string;
-  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled' | 'rescheduled';
+  status: 'active' | 'rejected' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
   cost: number;
   destinationAddress: string;
   hasReview: boolean;

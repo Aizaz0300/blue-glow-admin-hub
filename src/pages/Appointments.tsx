@@ -1,13 +1,11 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Clock, Users, DollarSign, Filter, Search, Plus } from "lucide-react";
+import { Calendar, Filter, Search } from "lucide-react";
 import { Appointment } from "@/types/models";
 import AppointmentCard from "@/components/AppointmentCard";
 
@@ -17,7 +15,7 @@ const Appointments = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
 
-  // Mock data - replace with Appwrite queries
+  // Mock data with new status types
   const appointments: Appointment[] = [
     {
       id: "apt_001",
@@ -33,7 +31,7 @@ const Appointments = () => {
       endTime: "11:00",
       duration: 60,
       notes: "Patient requires blood pressure monitoring and medication administration",
-      status: "scheduled",
+      status: "active",
       cost: 85,
       destinationAddress: "123 Main St, City, State 12345",
       hasReview: false
@@ -52,7 +50,7 @@ const Appointments = () => {
       endTime: "14:45",
       duration: 45,
       notes: "Post-surgery rehabilitation for knee replacement",
-      status: "in-progress",
+      status: "pending",
       cost: 120,
       destinationAddress: "456 Oak Ave, City, State 12345",
       hasReview: false
@@ -90,9 +88,47 @@ const Appointments = () => {
       endTime: "16:00",
       duration: 30,
       notes: "Follow-up consultation for chronic condition management",
-      status: "cancelled",
+      status: "rejected",
       cost: 75,
       destinationAddress: "321 Elm St, City, State 12345",
+      hasReview: false
+    },
+    {
+      id: "apt_005",
+      userId: "user_013",
+      providerId: "prov_346",
+      username: "David Miller",
+      providerName: "Dr. Amanda Davis",
+      userImageURL: "",
+      providerImageURL: "",
+      service: "Home Nursing",
+      date: "2024-01-21",
+      startTime: "11:00",
+      endTime: "12:00",
+      duration: 60,
+      notes: "Wound care and medication management",
+      status: "confirmed",
+      cost: 90,
+      destinationAddress: "654 Maple Ave, City, State 12345",
+      hasReview: false
+    },
+    {
+      id: "apt_006",
+      userId: "user_014",
+      providerId: "prov_347",
+      username: "Susan Taylor",
+      providerName: "Mark Thompson",
+      userImageURL: "",
+      providerImageURL: "",
+      service: "Physical Therapy",
+      date: "2024-01-17",
+      startTime: "16:00",
+      endTime: "17:00",
+      duration: 60,
+      notes: "Cancelled due to weather conditions",
+      status: "cancelled",
+      cost: 110,
+      destinationAddress: "987 Oak St, City, State 12345",
       hasReview: false
     }
   ];
@@ -102,49 +138,12 @@ const Appointments = () => {
     return appointments.filter(apt => apt.status === status);
   };
 
-  const getTodaysAppointments = () => {
-    const today = new Date().toISOString().split('T')[0];
-    return appointments.filter(apt => apt.date === today);
-  };
-
-  const getUpcomingAppointments = () => {
-    const today = new Date().toISOString().split('T')[0];
-    return appointments.filter(apt => apt.date > today);
-  };
-
   const filteredAppointments = getAppointmentsByStatus(activeTab).filter(appointment =>
     appointment.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     appointment.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     appointment.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
     appointment.destinationAddress.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const stats = [
-    {
-      title: "Total Appointments",
-      value: appointments.length.toString(),
-      icon: Calendar,
-      color: "from-blue-500 to-blue-600"
-    },
-    {
-      title: "Today's Appointments",
-      value: getTodaysAppointments().length.toString(),
-      icon: Clock,
-      color: "from-indigo-500 to-indigo-600"
-    },
-    {
-      title: "Active Patients",
-      value: new Set(appointments.map(apt => apt.userId)).size.toString(),
-      icon: Users,
-      color: "from-purple-500 to-purple-600"
-    },
-    {
-      title: "Total Revenue",
-      value: `$${appointments.filter(apt => apt.status === 'completed').reduce((sum, apt) => sum + apt.cost, 0)}`,
-      icon: DollarSign,
-      color: "from-green-500 to-green-600"
-    }
-  ];
 
   const handleReschedule = (appointmentId: string) => {
     toast({
@@ -185,32 +184,7 @@ const Appointments = () => {
               className="pl-10 w-64"
             />
           </div>
-          <Button className="gradient-primary text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            New Appointment
-          </Button>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={stat.title} className={`gradient-card hover-lift animate-slide-up border-0 overflow-hidden`} style={{animationDelay: `${index * 100}ms`}}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg`}>
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-1">
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-gray-600">{stat.title}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* Appointments Tabs */}
@@ -229,9 +203,11 @@ const Appointments = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
@@ -240,11 +216,13 @@ const Appointments = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="all">All ({appointments.length})</TabsTrigger>
-              <TabsTrigger value="scheduled">Scheduled ({appointments.filter(apt => apt.status === 'scheduled').length})</TabsTrigger>
-              <TabsTrigger value="in-progress">In Progress ({appointments.filter(apt => apt.status === 'in-progress').length})</TabsTrigger>
+              <TabsTrigger value="active">Active ({appointments.filter(apt => apt.status === 'active').length})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({appointments.filter(apt => apt.status === 'pending').length})</TabsTrigger>
+              <TabsTrigger value="confirmed">Confirmed ({appointments.filter(apt => apt.status === 'confirmed').length})</TabsTrigger>
               <TabsTrigger value="completed">Completed ({appointments.filter(apt => apt.status === 'completed').length})</TabsTrigger>
+              <TabsTrigger value="rejected">Rejected ({appointments.filter(apt => apt.status === 'rejected').length})</TabsTrigger>
               <TabsTrigger value="cancelled">Cancelled ({appointments.filter(apt => apt.status === 'cancelled').length})</TabsTrigger>
             </TabsList>
 

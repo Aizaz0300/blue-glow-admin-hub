@@ -5,66 +5,152 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { ServiceProvider } from "@/types/models";
+import ServiceProviderProfile from "@/components/ServiceProviderProfile";
 
 const ServiceProviders = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Mock data - replace with Appwrite queries
-  const providers = [
+  // Mock data using ServiceProvider structure
+  const providers: ServiceProvider[] = [
     {
-      id: 1,
+      id: "prov_001",
       name: "Dr. Sarah Johnson",
-      specialization: "Home Nursing",
       email: "sarah.johnson@email.com",
+      gender: "Female",
+      imageUrl: "",
+      services: ["Home Nursing", "Wound Care"],
+      rating: 4.8,
+      reviewCount: 45,
       phone: "+1 234 567 8901",
-      status: "pending",
-      joinDate: "2024-01-15",
-      experience: "5 years",
-      rating: 4.8
+      experience: 5,
+      about: "Experienced registered nurse specializing in home healthcare and wound care management.",
+      availability: {
+        monday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        tuesday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        wednesday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        thursday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        friday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "17:00" }] },
+        saturday: { isAvailable: false, timeWindows: [] },
+        sunday: { isAvailable: false, timeWindows: [] }
+      },
+      address: "Downtown Medical District, City, State",
+      cnic: [],
+      gallery: [],
+      certifications: [],
+      socialLinks: [],
+      reviewList: [],
+      licenseInfo: {
+        licenseNumber: "RN123456",
+        issuingAuthority: "State Nursing Board",
+        issueDate: "2019-01-15",
+        expiryDate: "2025-01-15",
+        licenseImageUrl: ""
+      },
+      status: "pending"
     },
     {
-      id: 2,
+      id: "prov_002",
       name: "Michael Chen",
-      specialization: "Physical Therapy",
       email: "michael.chen@email.com",
+      gender: "Male",
+      imageUrl: "",
+      services: ["Physical Therapy", "Rehabilitation"],
+      rating: 4.9,
+      reviewCount: 67,
       phone: "+1 234 567 8902",
-      status: "approved",
-      joinDate: "2024-01-10",
-      experience: "8 years",
-      rating: 4.9
+      experience: 8,
+      about: "Licensed physical therapist with expertise in post-surgical rehabilitation and mobility training.",
+      availability: {
+        monday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        tuesday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        wednesday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        thursday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        friday: { isAvailable: true, timeWindows: [{ start: "08:00", end: "16:00" }] },
+        saturday: { isAvailable: true, timeWindows: [{ start: "09:00", end: "13:00" }] },
+        sunday: { isAvailable: false, timeWindows: [] }
+      },
+      address: "Westside Clinic, City, State",
+      cnic: [],
+      gallery: [],
+      certifications: [],
+      socialLinks: [],
+      reviewList: [],
+      licenseInfo: {
+        licenseNumber: "PT789012",
+        issuingAuthority: "Physical Therapy Board",
+        issueDate: "2016-06-10",
+        expiryDate: "2024-06-10",
+        licenseImageUrl: ""
+      },
+      status: "approved"
     },
     {
-      id: 3,
+      id: "prov_003",
       name: "Emily Rodriguez",
-      specialization: "Home Care Assistant",
       email: "emily.rodriguez@email.com",
+      gender: "Female",
+      imageUrl: "",
+      services: ["Home Care Assistant", "Elderly Care"],
+      rating: 4.6,
+      reviewCount: 32,
       phone: "+1 234 567 8903",
-      status: "rejected",
-      joinDate: "2024-01-12",
-      experience: "3 years",
-      rating: 4.6
+      experience: 3,
+      about: "Compassionate home care assistant specializing in elderly care and daily living support.",
+      availability: {
+        monday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "18:00" }] },
+        tuesday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "18:00" }] },
+        wednesday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "18:00" }] },
+        thursday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "18:00" }] },
+        friday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "18:00" }] },
+        saturday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "14:00" }] },
+        sunday: { isAvailable: true, timeWindows: [{ start: "10:00", end: "14:00" }] }
+      },
+      address: "Northside Community, City, State",
+      cnic: [],
+      gallery: [],
+      certifications: [],
+      socialLinks: [],
+      reviewList: [],
+      licenseInfo: {
+        licenseNumber: "HCA345678",
+        issuingAuthority: "Healthcare Assistant Board",
+        issueDate: "2021-03-20",
+        expiryDate: "2025-03-20",
+        licenseImageUrl: ""
+      },
+      status: "rejected"
     },
   ];
 
-  const handleApprove = (providerId: number, providerName: string) => {
+  const handleApprove = (providerId: string) => {
+    const provider = providers.find(p => p.id === providerId);
     toast({
       title: "Provider Approved",
-      description: `${providerName} has been approved successfully`,
+      description: `${provider?.name} has been approved successfully`,
     });
   };
 
-  const handleReject = (providerId: number, providerName: string) => {
+  const handleReject = (providerId: string) => {
+    const provider = providers.find(p => p.id === providerId);
     toast({
       title: "Provider Rejected",
-      description: `${providerName}'s application has been rejected`,
+      description: `${provider?.name}'s application has been rejected`,
       variant: "destructive",
     });
   };
 
+  const handleViewDetails = (provider: ServiceProvider) => {
+    setSelectedProvider(provider);
+    setIsProfileOpen(true);
+  };
+
   const filteredProviders = providers.filter(provider =>
     provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    provider.specialization.toLowerCase().includes(searchTerm.toLowerCase())
+    provider.services.some(service => service.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -81,9 +167,6 @@ const ServiceProviders = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-64"
           />
-          <Button className="gradient-primary text-white">
-            Add Provider
-          </Button>
         </div>
       </div>
 
@@ -94,11 +177,15 @@ const ServiceProviders = () => {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                    {provider.name.split(' ').map(n => n[0]).join('')}
+                    {provider.imageUrl ? (
+                      <img src={provider.imageUrl} alt={provider.name} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      provider.name.split(' ').map(n => n[0]).join('')
+                    )}
                   </div>
                   <div>
                     <CardTitle className="text-xl text-gray-900">{provider.name}</CardTitle>
-                    <CardDescription className="text-gray-600">{provider.specialization}</CardDescription>
+                    <CardDescription className="text-gray-600">{provider.services.join(", ")}</CardDescription>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge 
                         className={`${
@@ -111,27 +198,29 @@ const ServiceProviders = () => {
                       </Badge>
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-500">★</span>
-                        <span className="text-sm text-gray-600">{provider.rating}</span>
+                        <span className="text-sm text-gray-600">{provider.rating} ({provider.reviewCount} reviews)</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                {provider.status === 'pending' && (
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleApprove(provider.id, provider.name)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      onClick={() => handleReject(provider.id, provider.name)}
-                      variant="destructive"
-                    >
-                      Reject
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  {provider.status === 'pending' && (
+                    <>
+                      <Button
+                        onClick={() => handleApprove(provider.id)}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => handleReject(provider.id)}
+                        variant="destructive"
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -140,17 +229,20 @@ const ServiceProviders = () => {
                   <h4 className="font-medium text-gray-900">Contact Information</h4>
                   <p className="text-sm text-gray-600">{provider.email}</p>
                   <p className="text-sm text-gray-600">{provider.phone}</p>
+                  <p className="text-sm text-gray-600">{provider.address}</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900">Professional Details</h4>
-                  <p className="text-sm text-gray-600">Experience: {provider.experience}</p>
-                  <p className="text-sm text-gray-600">Joined: {provider.joinDate}</p>
+                  <p className="text-sm text-gray-600">Experience: {provider.experience} years</p>
+                  <p className="text-sm text-gray-600">Gender: {provider.gender}</p>
+                  <p className="text-sm text-gray-600">License: {provider.licenseInfo.licenseNumber}</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium text-gray-900">Actions</h4>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">View Details</Button>
-                    <Button variant="outline" size="sm">Edit Profile</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleViewDetails(provider)}>
+                      View Details
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -158,6 +250,14 @@ const ServiceProviders = () => {
           </Card>
         ))}
       </div>
+
+      <ServiceProviderProfile
+        provider={selectedProvider}
+        open={isProfileOpen}
+        onOpenChange={setIsProfileOpen}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </div>
   );
 };
