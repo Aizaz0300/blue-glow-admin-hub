@@ -161,7 +161,7 @@ const AppointmentCard = ({ appointment, onReschedule, onCancel, onViewDetails }:
             View Details
           </Button>
           
-          {appointment.status === 'scheduled' && (
+          {(appointment.status === 'confirmed' || appointment.status === 'pending') && (
             <>
               <Button
                 onClick={() => onReschedule(appointment.id)}
