@@ -1,4 +1,3 @@
-
 export interface UserModel {
   profileImage: string;
   id: string;
@@ -75,4 +74,24 @@ export interface ServiceProvider {
   reviewList: Review[];
   licenseInfo: LicenseInfo;
   status: 'pending' | 'approved' | 'rejected';
+}
+
+export interface Appointment {
+  id: string;
+  userId: string;
+  providerId: string;
+  username: string;
+  providerName: string;
+  userImageURL: string;
+  providerImageURL: string;
+  service: string;
+  date: string; // ISO date string
+  startTime: string; // "HH:mm" format
+  endTime: string; // "HH:mm" format
+  duration: number; // in minutes
+  notes: string;
+  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled' | 'rescheduled';
+  cost: number;
+  destinationAddress: string;
+  hasReview: boolean;
 }
