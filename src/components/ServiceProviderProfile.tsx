@@ -1,10 +1,9 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ServiceProvider } from "@/types/models";
+import { ServiceProvider, DayAvailability } from "@/types/models";
 import { Star, Calendar, MapPin, Phone, Mail, Award, Clock, Users } from "lucide-react";
 
 interface ServiceProviderProfileProps {
@@ -30,6 +29,38 @@ const ServiceProviderProfile = ({
 
   const getDayName = (day: string) => {
     return day.charAt(0).toUpperCase() + day.slice(1);
+  };
+
+  const formatTime = (time: string) => {
+    try {
+      const [hours, minutes] = time.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours, 10));
+      date.setMinutes(parseInt(minutes, 10));
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true 
+      });
+    } catch (error) {
+      return time; // Return original if parsing fails
+    }
+  };
+
+  const renderTimeWindows = (schedule: DayAvailability) => {
+    if (!schedule.isAvailable || !Array.isArray(schedule.timeWindows)) {
+      return <span className="text-gray-400">Not Available</span>;
+    }
+
+    return (
+      <div className="space-y-1">
+        {schedule.timeWindows.map((window, index) => (
+          <div key={index} className="text-sm text-gray-600">
+            {formatTime(window.start)} - {formatTime(window.end)}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -161,21 +192,11 @@ const ServiceProviderProfile = ({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(provider.availability).map(([day, schedule]) => (
+                    {Object.entries(provider.availability || {}).map(([day, schedule]) => (
                       <div key={day} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="font-medium">{getDayName(day)}</div>
                         <div>
-                          {schedule.isAvailable ? (
-                            <div className="space-y-1">
-                              {schedule.timeWindows.map((window, index) => (
-                                <div key={index} className="text-sm text-gray-600">
-                                  {window.start} - {window.end}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">Not Available</span>
-                          )}
+                          {renderTimeWindows(schedule)}
                         </div>
                       </div>
                     ))}
@@ -246,13 +267,13 @@ const ServiceProviderProfile = ({
           {provider.status === 'pending' && (
             <div className="flex gap-3 pt-4 border-t">
               <Button
-                onClick={() => onApprove(provider.id)}
+                onClick={() => onApprove(provider.$id)}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white"
               >
                 Approve Provider
               </Button>
               <Button
-                onClick={() => onReject(provider.id)}
+                onClick={() => onReject(provider.$id)}
                 variant="destructive"
                 className="flex-1"
               >

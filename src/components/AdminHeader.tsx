@@ -1,20 +1,29 @@
-
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { logoutAdmin } from "@/lib/auth";
+import { ADMIN_EMAIL } from "@/lib/auth";
 
 const AdminHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    toast({
-      title: "Logged out successfully",
-      description: "You have been securely logged out",
-    });
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutAdmin();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been securely logged out",
+      });
+      navigate("/login", { replace: true });
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -30,7 +39,7 @@ const AdminHeader = () => {
         <div className="flex items-center gap-4">
           <div className="text-right">
             <p className="text-sm font-medium text-gray-900">Admin User</p>
-            <p className="text-xs text-gray-500">admin@healthcare.com</p>
+            <p className="text-xs text-gray-500">{ADMIN_EMAIL}</p>
           </div>
           <Button 
             onClick={handleLogout}

@@ -1,43 +1,69 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { ADMIN_EMAIL, updateAdminPassword } from "@/lib/auth";
 
 const Settings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState({
-    adminName: "Admin User",
-    adminEmail: "admin@healthcare.com",
-    companyName: "HealthCare Platform",
+    adminEmail: ADMIN_EMAIL,
     emailNotifications: true,
     smsNotifications: false,
     autoApproval: false,
     maintenanceMode: false,
   });
 
-  const handleSaveProfile = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully",
-    });
-  };
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
-  const handleSaveNotifications = () => {
-    toast({
-      title: "Notification Settings Updated",
-      description: "Your notification preferences have been saved",
-    });
-  };
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const handleSaveSystem = () => {
-    toast({
-      title: "System Settings Updated",
-      description: "System configuration has been updated successfully",
-    });
+  const handleUpdatePassword = async () => {
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "New password and confirm password do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwords.newPassword.length < 8) {
+      toast({
+        title: "Invalid Password",
+        description: "New password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      await updateAdminPassword(passwords.currentPassword, passwords.newPassword);
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully",
+      });
+      setPasswords({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   return (
@@ -51,43 +77,18 @@ const Settings = () => {
       <Card className="gradient-card border-0 animate-slide-up">
         <CardHeader>
           <CardTitle className="text-xl text-gray-900">Admin Profile</CardTitle>
-          <CardDescription>Update your personal information and credentials</CardDescription>
+          <CardDescription>Your admin account information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="adminName">Full Name</Label>
-              <Input
-                id="adminName"
-                value={settings.adminName}
-                onChange={(e) => setSettings({...settings, adminName: e.target.value})}
-                className="transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="adminEmail">Email Address</Label>
-              <Input
-                id="adminEmail"
-                type="email"
-                value={settings.adminEmail}
-                onChange={(e) => setSettings({...settings, adminEmail: e.target.value})}
-                className="transition-all duration-200"
-              />
-            </div>
-          </div>
           <div className="space-y-2">
-            <Label htmlFor="companyName">Company Name</Label>
+            <Label htmlFor="adminEmail">Email Address</Label>
             <Input
-              id="companyName"
-              value={settings.companyName}
-              onChange={(e) => setSettings({...settings, companyName: e.target.value})}
-              className="transition-all duration-200"
+              id="adminEmail"
+              type="email"
+              value={settings.adminEmail}
+              disabled
+              className="transition-all duration-200 bg-gray-100"
             />
-          </div>
-          <div className="pt-4">
-            <Button onClick={handleSaveProfile} className="gradient-primary text-white">
-              Save Profile
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -104,6 +105,8 @@ const Settings = () => {
             <Input
               id="currentPassword"
               type="password"
+              value={passwords.currentPassword}
+              onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
               placeholder="Enter current password"
               className="transition-all duration-200"
             />
@@ -114,6 +117,8 @@ const Settings = () => {
               <Input
                 id="newPassword"
                 type="password"
+                value={passwords.newPassword}
+                onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
                 placeholder="Enter new password"
                 className="transition-all duration-200"
               />
@@ -123,87 +128,20 @@ const Settings = () => {
               <Input
                 id="confirmPassword"
                 type="password"
+                value={passwords.confirmPassword}
+                onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
                 placeholder="Confirm new password"
                 className="transition-all duration-200"
               />
             </div>
           </div>
           <div className="pt-4">
-            <Button className="gradient-primary text-white">
-              Update Password
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notification Settings */}
-      <Card className="gradient-card border-0 animate-slide-up" style={{animationDelay: '200ms'}}>
-        <CardHeader>
-          <CardTitle className="text-xl text-gray-900">Notification Preferences</CardTitle>
-          <CardDescription>Configure how you receive system notifications</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-base font-medium text-gray-900">Email Notifications</Label>
-              <p className="text-sm text-gray-600">Receive updates via email</p>
-            </div>
-            <Switch
-              checked={settings.emailNotifications}
-              onCheckedChange={(checked) => setSettings({...settings, emailNotifications: checked})}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-base font-medium text-gray-900">SMS Notifications</Label>
-              <p className="text-sm text-gray-600">Receive urgent alerts via SMS</p>
-            </div>
-            <Switch
-              checked={settings.smsNotifications}
-              onCheckedChange={(checked) => setSettings({...settings, smsNotifications: checked})}
-            />
-          </div>
-          <div className="pt-4">
-            <Button onClick={handleSaveNotifications} className="gradient-primary text-white">
-              Save Notification Settings
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* System Settings */}
-      <Card className="gradient-card border-0 animate-slide-up" style={{animationDelay: '300ms'}}>
-        <CardHeader>
-          <CardTitle className="text-xl text-gray-900">System Configuration</CardTitle>
-          <CardDescription>Manage platform-wide settings and features</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-base font-medium text-gray-900">Auto-Approve Providers</Label>
-              <p className="text-sm text-gray-600">Automatically approve new provider registrations</p>
-            </div>
-            <Switch
-              checked={settings.autoApproval}
-              onCheckedChange={(checked) => setSettings({...settings, autoApproval: checked})}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-base font-medium text-gray-900">Maintenance Mode</Label>
-              <p className="text-sm text-gray-600">Enable maintenance mode to restrict user access</p>
-            </div>
-            <Switch
-              checked={settings.maintenanceMode}
-              onCheckedChange={(checked) => setSettings({...settings, maintenanceMode: checked})}
-            />
-          </div>
-          <div className="pt-4 flex gap-3">
-            <Button onClick={handleSaveSystem} className="gradient-primary text-white">
-              Save System Settings
-            </Button>
-            <Button variant="outline">
-              Reset to Defaults
+            <Button 
+              onClick={handleUpdatePassword} 
+              disabled={isUpdatingPassword}
+              className="gradient-primary text-white"
+            >
+              {isUpdatingPassword ? "Updating..." : "Update Password"}
             </Button>
           </div>
         </CardContent>

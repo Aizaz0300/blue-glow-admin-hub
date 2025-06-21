@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { loginAdmin, ADMIN_EMAIL } from "@/lib/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,25 +17,23 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate login process - replace with actual Appwrite authentication
-    setTimeout(() => {
-      if (email && password) {
-        localStorage.setItem("adminToken", "authenticated");
-        toast({
-          title: "Login Successful",
-          description: "Welcome to HealthCare Admin Panel",
-        });
-        navigate("/");
-      } else {
-        toast({
-          title: "Login Failed",
-          description: "Please enter valid credentials",
-          variant: "destructive",
-        });
-      }
+
+    try {
+      await loginAdmin(email, password);
+      toast({
+        title: "Login Successful",
+        description: "Welcome to HealthCare Connect Admin Panel",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: error instanceof Error ? error.message : "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -55,7 +53,7 @@ const Login = () => {
             </svg>
           </div>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            HealthCare Admin
+            HealthCare Connect Admin
           </CardTitle>
           <CardDescription className="text-gray-600">
             Secure access to your admin dashboard
@@ -68,7 +66,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@healthcare.com"
+                placeholder="Admin Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 border-gray-200"
@@ -80,7 +78,7 @@ const Login = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="••••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 border-gray-200"

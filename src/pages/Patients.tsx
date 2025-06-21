@@ -1,55 +1,38 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { UserModel } from "@/types/models";
+import { Loader2 } from "lucide-react";
+import { usePatients } from "@/hooks/usePatients";
+import { useToast } from "@/components/ui/use-toast";
 
 const Patients = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { patients, loading, error } = usePatients();
+  const { toast } = useToast();
 
-  // Mock data using UserModel structure
-  const patients: UserModel[] = [
-    {
-      id: "user_001",
-      profileImage: "",
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@email.com",
-      phone: "+1 234 567 8901",
-      address: "123 Main St, City, State 12345",
-      dateOfBirth: "1959-03-15",
-      gender: "Male"
-    },
-    {
-      id: "user_002",
-      profileImage: "",
-      firstName: "Mary",
-      lastName: "Johnson",
-      email: "mary.johnson@email.com",
-      phone: "+1 234 567 8902",
-      address: "456 Oak Ave, City, State 12345",
-      dateOfBirth: "1952-08-22",
-      gender: "Female"
-    },
-    {
-      id: "user_003",
-      profileImage: "",
-      firstName: "Robert",
-      lastName: "Wilson",
-      email: "robert.wilson@email.com",
-      phone: "+1 234 567 8903",
-      address: "789 Pine Rd, City, State 12345",
-      dateOfBirth: "1966-11-30",
-      gender: "Male"
-    },
-  ];
+  // Filter patients based on search term
+  const filteredPatients = patients.filter(patient => {
+    const searchString = searchTerm.toLowerCase();
+    const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+    const email = patient.email.toLowerCase();
+    const phone = patient.phone.toLowerCase();
+    
+    return fullName.includes(searchString) || 
+           email.includes(searchString) || 
+           phone.includes(searchString);
+  });
 
-  const filteredPatients = patients.filter(patient =>
-    `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Show error toast only when error changes
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   const calculateAge = (dateOfBirth: string) => {
     const today = new Date();
@@ -63,6 +46,14 @@ const Patients = () => {
     
     return age;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -81,69 +72,95 @@ const Patients = () => {
         </div>
       </div>
 
-      <div className="grid gap-6">
-        {filteredPatients.map((patient, index) => (
-          <Card key={patient.id} className={`gradient-card border-0 hover-lift animate-slide-up`} style={{animationDelay: `${index * 100}ms`}}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {filteredPatients.length === 0 ? (
+          <Card className="p-8 text-center col-span-full">
+            <p className="text-gray-600">
+              {searchTerm ? "No patients found matching your search" : "No patients available"}
+            </p>
+          </Card>
+        ) : (
+          filteredPatients.map((patient, index) => (
+            <Card 
+              key={patient.$id} 
+              className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+            >
+              <CardHeader className="border-b bg-gray-50/50">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xl shadow-inner">
                     {patient.profileImage ? (
-                      <img src={patient.profileImage} alt={`${patient.firstName} ${patient.lastName}`} className="w-full h-full object-cover rounded-full" />
+                      <img 
+                        src={patient.profileImage} 
+                        alt={`${patient.firstName} ${patient.lastName}`} 
+                        className="w-full h-full object-cover rounded-full"
+                      />
                     ) : (
                       `${patient.firstName[0]}${patient.lastName[0]}`
                     )}
                   </div>
-                  <div>
-                    <CardTitle className="text-xl text-gray-900">{patient.firstName} {patient.lastName}</CardTitle>
-                    <CardDescription className="text-gray-600">
-                      Age: {calculateAge(patient.dateOfBirth)} years • {patient.gender}
-                    </CardDescription>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge className="bg-blue-100 text-blue-800 border-0">
-                        Patient ID: {patient.id.substring(0, 8)}
+                  <div className="space-y-1">
+                    <CardTitle className="text-xl font-semibold">
+                      {patient.firstName} {patient.lastName}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">
+                        ID: {patient.$id.substring(0, 8)}
+                      </Badge>
+                      <Badge variant="outline">
+                        {calculateAge(patient.dateOfBirth)} years old
                       </Badge>
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    View Profile
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Contact Information</h4>
-                  <p className="text-sm text-gray-600">{patient.email}</p>
-                  <p className="text-sm text-gray-600">{patient.phone}</p>
-                  <p className="text-sm text-gray-600">{patient.address}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Personal Details</h4>
-                  <p className="text-sm text-gray-600">Date of Birth: {new Date(patient.dateOfBirth).toLocaleDateString()}</p>
-                  <p className="text-sm text-gray-600">Gender: {patient.gender}</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">Quick Actions</h4>
-                  <div className="flex flex-col gap-1">
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      Schedule Appointment
-                    </Button>
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      View History
-                    </Button>
+              </CardHeader>
+              <CardContent className="grid gap-6 p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 block mb-1">
+                        Email Address
+                      </label>
+                      <p className="text-gray-900">{patient.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 block mb-1">
+                        Phone Number
+                      </label>
+                      <p className="text-gray-900">{patient.phone}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 block mb-1">
+                        Gender
+                      </label>
+                      <p className="text-gray-900 capitalize">{patient.gender}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 block mb-1">
+                        Date of Birth
+                      </label>
+                      <p className="text-gray-900">
+                        {new Date(patient.dateOfBirth).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 block mb-1">
+                        Residential Address
+                      </label>
+                      <p className="text-gray-900">{patient.address}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

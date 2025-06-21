@@ -1,7 +1,6 @@
-
 export interface UserModel {
   profileImage: string;
-  id: string;
+  $id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -16,22 +15,22 @@ export interface TimeWindow {
   end: string; // "HH:mm" format
 }
 
-export interface DaySchedule {
+export interface DayAvailability {
   isAvailable: boolean;
   timeWindows: TimeWindow[];
 }
 
 export interface Availability {
-  monday: DaySchedule;
-  tuesday: DaySchedule;
-  wednesday: DaySchedule;
-  thursday: DaySchedule;
-  friday: DaySchedule;
-  saturday: DaySchedule;
-  sunday: DaySchedule;
+  monday: DayAvailability;
+  tuesday: DayAvailability;
+  wednesday: DayAvailability;
+  thursday: DayAvailability;
+  friday: DayAvailability;
+  saturday: DayAvailability;
+  sunday: DayAvailability;
 }
 
-export interface SocialMedia {
+export interface SocialLink {
   platform: string;
   url: string;
   icon: string; // icon name or class
@@ -55,7 +54,7 @@ export interface Review {
 }
 
 export interface ServiceProvider {
-  id: string;
+  $id: string;
   name: string;
   email: string;
   gender: string;
@@ -71,14 +70,14 @@ export interface ServiceProvider {
   cnic: string[]; // URL images
   gallery: string[]; // Equipment URL images
   certifications: string[]; // URL images
-  socialLinks: SocialMedia[];
+  socialLinks: SocialLink[];
   reviewList: Review[];
   licenseInfo: LicenseInfo;
   status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface Appointment {
-  id: string;
+  $id: string;
   userId: string;
   providerId: string;
   username: string;
@@ -95,4 +94,13 @@ export interface Appointment {
   cost: number;
   destinationAddress: string;
   hasReview: boolean;
+}
+
+export interface Service {
+  $id: string;
+  name: string;
+  service: string;
+  icon: string;
+  color: string;
+  bgColor: string;
 }

@@ -48,11 +48,6 @@ const menuItems = [
     icon: Activity,
   },
   {
-    title: "Reports",
-    url: "/reports",
-    icon: FileText,
-  },
-  {
     title: "Settings",
     url: "/settings",
     icon: Settings,
@@ -73,7 +68,7 @@ const AdminSidebar = () => {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">HealthCare</h2>
+              <h2 className="text-md font-bold text-white">HealthCare Connect</h2>
               <p className="text-xs text-blue-100">Admin Panel</p>
             </div>
           </div>
