@@ -33,14 +33,10 @@ const Dashboard = () => {
     useState<ServiceProvider | null>(null);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
-
-  const { stats, pendingProviders, allProviders, loading, error, bucketUsage } = useAppwriteData();
+  const { stats, pendingProviders, allProviders, loading, error, bucketUsage } =
+    useAppwriteData();
 
   const { updateProviderStatus } = useServiceProviders();
-
-  useEffect(() => {
-    console.log("Pending Providers Updated:", pendingProviders);
-  }, [pendingProviders]);
 
   const statsData = [
     {
@@ -74,15 +70,15 @@ const Dashboard = () => {
   ];
 
   const providerStats = {
-    approved: allProviders.filter(p => p.status === 'approved').length,
-    pending: allProviders.filter(p => p.status === 'pending').length,
-    rejected: allProviders.filter(p => p.status === 'rejected').length,
-    total: allProviders.length
+    approved: allProviders.filter((p) => p.status === "approved").length,
+    pending: allProviders.filter((p) => p.status === "pending").length,
+    rejected: allProviders.filter((p) => p.status === "rejected").length,
+    total: allProviders.length,
   };
 
   useEffect(() => {
-    console.log('All Providers:', allProviders);
-    console.log('Provider Stats:', providerStats);
+    console.log("All Providers:", allProviders);
+    console.log("Provider Stats:", providerStats);
   }, [allProviders]);
 
   const calculatePercentage = (count: number) => {
@@ -91,14 +87,14 @@ const Dashboard = () => {
   };
 
   const formatStorage = (bytes: number) => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    if (bytes === 0) return '0 Byte';
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    if (bytes === 0) return "0 Byte";
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
-    return Math.round((bytes / Math.pow(1024, i))) + ' ' + sizes[i];
+    return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
   };
 
-  const filteredProviders = allProviders.filter(provider => {
-    const isPending = provider.status === 'pending';
+  const filteredProviders = allProviders.filter((provider) => {
+    const isPending = provider.status === "pending";
 
     return isPending;
   });
@@ -140,6 +136,24 @@ const Dashboard = () => {
       toast({
         title: "Error",
         description: "Failed to reject provider",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePending = async (providerId: string) => {
+    const provider = pendingProviders.find((p) => p.$id === providerId);
+    const success = await updateProviderStatus(providerId, "pending");
+
+    if (success) {
+      toast({
+        title: "Provider Status Updated",
+        description: `${provider?.name}'s status has been set to pending`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to update provider status",
         variant: "destructive",
       });
     }
@@ -245,7 +259,7 @@ const Dashboard = () => {
         <Card className="gradient-card border-0 hover-lift">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">
-              Provider Analytics 
+              Provider Analytics
             </CardTitle>
             <CardDescription>
               Analyze provider applications distribution and status
@@ -256,35 +270,45 @@ const Dashboard = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <ChartBar className="w-4 h-4 text-blue-600" />
-                <h3 className="text-sm font-semibold">Application Statistics</h3>
+                <h3 className="text-sm font-semibold">
+                  Application Statistics
+                </h3>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 bg-green-50 rounded-lg">
                   <p className="text-2xl font-bold text-green-600">
                     {calculatePercentage(providerStats.approved)}%
                   </p>
-                  <p className="text-xs text-gray-600">Approved ({providerStats.approved})</p>
+                  <p className="text-xs text-gray-600">
+                    Approved ({providerStats.approved})
+                  </p>
                 </div>
                 <div className="p-4 bg-yellow-50 rounded-lg">
                   <p className="text-2xl font-bold text-yellow-600">
                     {calculatePercentage(providerStats.pending)}%
                   </p>
-                  <p className="text-xs text-gray-600">Pending ({providerStats.pending})</p>
+                  <p className="text-xs text-gray-600">
+                    Pending ({providerStats.pending})
+                  </p>
                 </div>
                 <div className="p-4 bg-red-50 rounded-lg">
                   <p className="text-2xl font-bold text-red-600">
                     {calculatePercentage(providerStats.rejected)}%
                   </p>
-                  <p className="text-xs text-gray-600">Rejected ({providerStats.rejected})</p>
+                  <p className="text-xs text-gray-600">
+                    Rejected ({providerStats.rejected})
+                  </p>
                 </div>
               </div>
             </div>
-  
+
             {/* Show Documents Bucket Usage Data */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <HardDrive className="w-4 h-4 text-blue-600" />
-                <h3 className="text-sm font-semibold">Documents Storage Usage</h3>
+                <h3 className="text-sm font-semibold">
+                  Documents Storage Usage
+                </h3>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
@@ -385,6 +409,7 @@ const Dashboard = () => {
         onOpenChange={setProfileDialogOpen}
         onApprove={handleApprove}
         onReject={handleReject}
+        onPending={handlePending}
       />
     </div>
   );

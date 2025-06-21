@@ -60,6 +60,24 @@ const ServiceProviders = () => {
     }
   };
 
+  const handlePending = async (providerId: string) => {
+    const provider = providers.find(p => p.$id === providerId);
+    const success = await updateProviderStatus(providerId, 'pending');
+    
+    if (success) {
+      toast({
+        title: "Provider Status Updated",
+        description: `${provider?.name}'s status has been set to pending`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to update provider status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleViewDetails = (provider: ServiceProvider) => {
     setSelectedProvider(provider);
     setIsProfileOpen(true);
@@ -206,6 +224,7 @@ const ServiceProviders = () => {
         onOpenChange={setIsProfileOpen}
         onApprove={handleApprove}
         onReject={handleReject}
+        onPending={handlePending}
       />
     </div>
   );

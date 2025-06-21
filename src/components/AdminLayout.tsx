@@ -4,6 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import { checkAuthStatus } from "@/lib/auth";
+import { LoaderCircle } from "lucide-react";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ const AdminLayout = () => {
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50/30">
+        <LoaderCircle  className="h-10 w-10 animate-spin text-blue-600" />
       </div>
     );
   }

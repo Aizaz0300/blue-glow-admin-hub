@@ -24,7 +24,7 @@ export const useServiceProviders = () => {
     }
   };
 
-  const handleStatusUpdate = async (providerId: string, status: 'approved' | 'rejected') => {
+  const handleStatusUpdate = async (providerId: string, status: 'approved' | 'rejected' | 'pending') => {
     try {
       await databases.updateDocument(
         DATABASE_ID,
