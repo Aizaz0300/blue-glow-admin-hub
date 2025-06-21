@@ -13,6 +13,7 @@ import Appointments from "./pages/Appointments";
 import Services from "./pages/Services";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import AuthGuard from "./components/AuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<AdminLayout />}>
+          <Route path="/" element={
+            <AuthGuard>
+              <AdminLayout />
+            </AuthGuard>
+          }>
             <Route index element={<Dashboard />} />
             <Route path="providers" element={<ServiceProviders />} />
             <Route path="patients" element={<Patients />} />

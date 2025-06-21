@@ -1,19 +1,33 @@
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
+import { checkAuthStatus } from "@/lib/auth";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      navigate("/login");
-    }
+    const checkAuth = async () => {
+      const authStatus = await checkAuthStatus();
+      setIsAuthenticated(authStatus);
+      if (!authStatus) {
+        navigate("/login");
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>

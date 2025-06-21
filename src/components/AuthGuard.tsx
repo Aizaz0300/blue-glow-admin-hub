@@ -1,31 +1,22 @@
-import { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { checkAuthStatus } from '@/lib/auth';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { checkAuthStatus } from "@/lib/auth";
 
-interface AuthGuardProps {
-  children: React.ReactNode;
-}
-
-export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const location = useLocation();
+const AuthGuard = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const isAuth = await checkAuthStatus();
-      setIsAuthenticated(isAuth);
+      const isAuthenticated = await checkAuthStatus();
+      if (!isAuthenticated) {
+        navigate("/login");
+      }
     };
+
     checkAuth();
-  }, []);
-
-  if (isAuthenticated === null) {
-    // Add a loading state here if needed
-    return null;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  }, [navigate]);
 
   return <>{children}</>;
 };
+
+export default AuthGuard;

@@ -24,10 +24,18 @@ export const logoutAdmin = async () => {
   }
 };
 
+export const getCurrentSession = async () => {
+  try {
+    return await account.get();
+  } catch (error) {
+    return null;
+  }
+};
+
 export const checkAuthStatus = async () => {
   try {
-    const session = await account.get();
-    return session.email === ADMIN_EMAIL;
+    const session = await account.getSession('current');
+    return !!session;
   } catch (error) {
     return false;
   }
