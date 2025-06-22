@@ -79,8 +79,7 @@ const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
           </div>
           <div className="text-right">
             <div className="flex items-center gap-1 text-green-600 font-semibold">
-              <DollarSign className="w-4 h-4" />
-              <span>${appointment.cost}</span>
+              <span>PKR {appointment.cost}</span>
             </div>
           </div>
         </div>

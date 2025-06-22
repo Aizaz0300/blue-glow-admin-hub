@@ -113,48 +113,43 @@ const Patients = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="grid gap-6 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 block mb-1">
-                        Email Address
-                      </label>
-                      <p className="text-gray-900">{patient.email}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 block mb-1">
-                        Phone Number
-                      </label>
-                      <p className="text-gray-900">{patient.phone}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 block mb-1">
-                        Gender
-                      </label>
-                      <p className="text-gray-900 capitalize">{patient.gender}</p>
-                    </div>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 block mb-1">
+                      Email Address
+                    </label>
+                    <p className="text-gray-900 break-words">{patient.email}</p>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 block mb-1">
-                        Date of Birth
-                      </label>
-                      <p className="text-gray-900">
-                        {new Date(patient.dateOfBirth).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500 block mb-1">
-                        Residential Address
-                      </label>
-                      <p className="text-gray-900">{patient.address}</p>
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 block mb-1">
+                      Phone Number
+                    </label>
+                    <p className="text-gray-900">{patient.phone}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 block mb-1">
+                      Gender
+                    </label>
+                    <p className="text-gray-900 capitalize">{patient.gender}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 block mb-1">
+                      Date of Birth
+                    </label>
+                    <p className="text-gray-900">
+                      {new Date(patient.dateOfBirth).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-medium text-gray-500 block mb-1">
+                      Residential Address
+                    </label>
+                    <p className="text-gray-900 break-words">{patient.address}</p>
                   </div>
                 </div>
               </CardContent>
