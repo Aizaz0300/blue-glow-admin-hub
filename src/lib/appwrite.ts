@@ -1,11 +1,16 @@
-import { Client, Databases, Account, Storage, Models } from 'appwrite';
+import { Client, Account, Databases, Storage, Models } from 'appwrite';
 
-const client = new Client()
-    .setEndpoint('https://cloud.appwrite.io/v1') // Set your Appwrite endpoint
-    .setProject('67e637810004c83abb76');        // Set your project ID
+const client = new Client();
 
-export const databases = new Databases(client);
+const VITE_APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT;
+const VITE_APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
+
+client
+    .setEndpoint(VITE_APPWRITE_ENDPOINT)
+    .setProject(VITE_APPWRITE_PROJECT_ID);
+
 export const account = new Account(client);
+export const databases = new Databases(client);
 export const storage = new Storage(client);
 
 // Database and collection IDs
@@ -42,4 +47,4 @@ export const getBucketUsage = async (bucketId: string): Promise<{ filesCount: nu
   }
 };
 
-export { client };
+export default client;
