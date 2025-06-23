@@ -90,7 +90,7 @@ export interface Appointment {
   endTime: string; // "HH:mm" format
   duration: number; // in minutes
   notes: string;
-  status: 'active' | 'rejected' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected' | 'disputed' | 'resolved';
   cost: number;
   destinationAddress: string;
   hasReview: boolean;

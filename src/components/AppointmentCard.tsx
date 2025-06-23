@@ -16,9 +16,10 @@ import { Appointment } from "@/types/models";
 interface AppointmentCardProps {
   appointment: Appointment;
   onCancel: (appointmentId: string) => void;
+  onStatusUpdate: (id: string, status: string) => void;
 }
 
-const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, onCancel, onStatusUpdate }: AppointmentCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -33,6 +34,10 @@ const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
         return "bg-purple-100 text-purple-800 border-purple-200";
       case "cancelled":
         return "bg-gray-100 text-gray-800 border-gray-200";
+      case "disputed":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "resolved":
+        return "bg-teal-100 text-teal-800 border-teal-200";  
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -108,7 +113,7 @@ const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
                   {appointment.username}
                 </p>
                 <p className="text-xs text-gray-600">
-                  Patient ID: {appointment.userId.substring(0, 8)}
+                  Patient ID: {appointment.userId}
                 </p>
               </div>
             </div>
@@ -135,7 +140,7 @@ const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
                   {appointment.providerName}
                 </p>
                 <p className="text-xs text-gray-600">
-                  Provider ID: {appointment.providerId.substring(0, 8)}
+                  Provider ID: {appointment.providerId}
                 </p>
               </div>
             </div>
@@ -203,6 +208,26 @@ const AppointmentCard = ({ appointment, onCancel }: AppointmentCardProps) => {
           {appointment.status === "completed" && !appointment.hasReview && (
             <Button variant="outline" size="sm" className="text-xs">
               Request Review
+            </Button>
+          )}
+
+          {appointment.status === "disputed" && (
+            <Button
+              variant="outline"
+              onClick={() => onStatusUpdate(appointment.$id, "resolved")}
+              className="text-green-600 hover:text-green-700"
+            >
+              Mark as Resolved
+            </Button>
+          )}
+
+          {appointment.status === "resolved" && (
+            <Button
+              variant="outline"
+              onClick={() => onStatusUpdate(appointment.$id, "disputed")}
+              className="text-yellow-600 hover:text-yellow-700"
+            >
+              Mark as Disputed Again
             </Button>
           )}
         </div>

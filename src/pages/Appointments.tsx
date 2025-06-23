@@ -42,6 +42,22 @@ const Appointments = () => {
     }
   };
 
+  const handleStatusUpdate = async (appointmentId: string, newStatus: string) => {
+    try {
+      await updateAppointmentStatus(appointmentId, newStatus);
+      toast({
+        title: "Status Updated",
+        description: `The appointment status has been updated to ${newStatus}`,
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update appointment status",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (error) {
     return (
       <div className="text-center py-12">
@@ -88,14 +104,16 @@ const Appointments = () => {
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-7">
-                <TabsTrigger value="all">All ({appointments.length})</TabsTrigger>
-                <TabsTrigger value="active">Active ({appointments.filter(apt => apt.status === 'active').length})</TabsTrigger>
-                <TabsTrigger value="pending">Pending ({appointments.filter(apt => apt.status === 'pending').length})</TabsTrigger>
-                <TabsTrigger value="confirmed">Confirmed ({appointments.filter(apt => apt.status === 'confirmed').length})</TabsTrigger>
-                <TabsTrigger value="completed">Completed ({appointments.filter(apt => apt.status === 'completed').length})</TabsTrigger>
-                <TabsTrigger value="rejected">Rejected ({appointments.filter(apt => apt.status === 'rejected').length})</TabsTrigger>
-                <TabsTrigger value="cancelled">Cancelled ({appointments.filter(apt => apt.status === 'cancelled').length})</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-8">
+              <TabsTrigger value="all">All ({appointments.length})</TabsTrigger>
+              <TabsTrigger value="pending">Pending ({appointments.filter(apt => apt.status === 'pending').length})</TabsTrigger>
+              <TabsTrigger value="confirmed">Confirmed ({appointments.filter(apt => apt.status === 'confirmed').length})</TabsTrigger>
+              <TabsTrigger value="completed">Completed ({appointments.filter(apt => apt.status === 'completed').length})</TabsTrigger>
+              <TabsTrigger value="cancelled">Cancelled ({appointments.filter(apt => apt.status === 'cancelled').length})</TabsTrigger>
+              <TabsTrigger value="rejected">Rejected ({appointments.filter(apt => apt.status === 'rejected').length})</TabsTrigger>
+              <TabsTrigger value="disputed">Disputed ({appointments.filter(apt => apt.status === 'disputed').length})</TabsTrigger>
+              <TabsTrigger value="resolved">Resolved ({appointments.filter(apt => apt.status === 'resolved').length})</TabsTrigger>
+
               </TabsList>
 
               <TabsContent value={activeTab} className="space-y-4">
@@ -111,6 +129,7 @@ const Appointments = () => {
                       <AppointmentCard
                         appointment={appointment}
                         onCancel={handleCancel}
+                        onStatusUpdate={handleStatusUpdate}
                       />
                     </div>
                   ))
